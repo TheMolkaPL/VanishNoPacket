@@ -1,5 +1,7 @@
 package org.kitteh.vanish.listeners;
 
+import com.destroystokyo.paper.event.block.BeaconEffectEvent;
+import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Beacon;
@@ -11,17 +13,19 @@ import org.bukkit.block.Dispenser;
 import org.bukkit.block.Dropper;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.Hopper;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.Inventory;
@@ -117,16 +121,38 @@ public final class ListenPlayerOther implements Listener {
             event.setCancelled(true);
             return;
         }
-        if ((event.getAction() == Action.PHYSICAL) && (event.getClickedBlock().getType() == Material.SOIL)) {
+        if ((event.getAction() == Action.PHYSICAL) && (event.getClickedBlock().getType() == Material.FARMLAND)) {
             if (this.plugin.getManager().isVanished(player) && VanishPerms.canNotTrample(player)) {
                 event.setCancelled(true);
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
-        if (this.plugin.getManager().isVanished(event.getPlayer()) && VanishPerms.canNotPickUp(event.getPlayer())) {
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
+        Player picker = event.getPlayer();
+        if (this.plugin.getManager().isVanished(picker) && VanishPerms.canNotPickUp(picker)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPlayerPickupItem(EntityPickupItemEvent event) {
+        Entity picker = event.getEntity();
+        if (!(picker instanceof Player)) {
+            return;
+        }
+
+        Player player = (Player) picker;
+        if (this.plugin.getManager().isVanished(player) && VanishPerms.canNotPickUp(player)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPlayerPickupExperience(PlayerPickupExperienceEvent event) {
+        Player picker = event.getPlayer();
+        if (this.plugin.getManager().isVanished(picker) && VanishPerms.canNotPickUp(picker)) {
             event.setCancelled(true);
         }
     }
@@ -158,6 +184,14 @@ public final class ListenPlayerOther implements Listener {
     public void onWorldChange(PlayerChangedWorldEvent event) {
         if (Settings.getWorldChangeCheck()) {
             this.plugin.getManager().playerRefresh(event.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onBeaconEffect(BeaconEffectEvent event) {
+        Player taking = event.getPlayer();
+        if (this.plugin.getManager().isVanished(taking) && VanishPerms.canNotPickUp(taking)) {
+            event.setCancelled(true);
         }
     }
 }

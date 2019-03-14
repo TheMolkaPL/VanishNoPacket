@@ -72,9 +72,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>bukkit</artifactId>
-      <version>1.7.10-R0.1-SNAPSHOT</version>
+      <groupId>com.destroystokyo.paper</groupId>
+      <artifactId>paper-api</artifactId>
+      <version>1.13.2-R0.1-SNAPSHOT</version>
       <type>jar</type>
       <optional>true</optional>
     </dependency>
